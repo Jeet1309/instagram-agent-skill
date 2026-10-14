@@ -1,21 +1,54 @@
 # Instagram Content Studio (`instagram-agent-skill`)
 
-A unified, agent-neutral Instagram skill repository that combines the full source toolkits of:
+**Turn any AI agent into a full-stack Instagram creative team, pre-shoot retention editor, multi-agent test jury, and post-publish analytics lab.**
 
-- **[sergebulaev/instagram-skills](https://github.com/sergebulaev/instagram-skills)** (9 marketing/content-engineering skills + Publora publishing, Apify niche reading, Pixfaro carousel illustration clients)
-- **[Jakeschincariol/instagram-agent-skill](https://github.com/Jakeschincariol/instagram-agent-skill)** (13 creator/Reels skills + 6 zero-dependency local Python linters/scorers, 26 hook formulas, 100-point profile rubric, 154-term slop lexicon)
+Most Instagram AI prompts generate generic, robotic captions that die behind the `... more` fold or scripts that lose viewers in the first three seconds. **Instagram Content Studio** gives your agent a complete, production-grade operating system for Instagram—from finding outlier ideas and scripting Reels with timed beat sheets, to stress-testing drafts with a panel of independent reviewer subagents, auditing your profile, and analyzing Trial Reels data.
 
-plus two new research-backed tools:
-1. **`scripts/reel_jury.py` (Optional $N$-Subagent Reel Review Panel & Calibrated Aggregator)** — spawns $N$ orthogonal reviewer subagents (`cold_scroller`, `retention_editor`, `niche_skeptic`, `icp_buyer`, `voice_humanizer`, etc.) using a blinded **0–5 Behaviorally Anchored Rating Scale (BARS)** + mandatory verbatim quote verification combined with a **40% deterministic tool floor** (`hookscore.py` + `beats.py` + `caption.py` + `detect.py`) so scores are never random.
-2. **`scripts/insights_lab.py` (Insights & Trial Reels Experiment Lab)** — analyzes your own post CSV/TSV exports against account-median per-reach baselines and outputs Trial Reels promote/re-edit/archive verdicts,
-
-all wrapped in a single cross-agent `SKILL.md` router that works in any AI agent (Claude Code, Codex, OpenCode, Cursor, Cline, Windsurf, Hermes, or plain chat).
+Works out of the box in **Claude Code, Codex, OpenCode, Cursor, Cline, Windsurf, Hermes, or any agent that reads `SKILL.md`**—with zero required API keys.
 
 ---
 
-## Install (Any Agent)
+## What This Skill Does (And Why Use It)
 
-### 1. Skills CLI (Claude Code, Codex, Cursor, OpenCode, etc.)
+### 1. Writes Reels You Can Actually Say Out Loud (Before You Waste a Take)
+Instead of handing you a wall of text, the skill builds Reels around **36 proven hook formulas**, scores your opening line on 5 attention properties (`hookscore.py`), and maps your script into a **spoken word-per-minute beat sheet (`beats.py`)**. It flags hooks that run past 3 seconds, static beats longer than 4 seconds where viewers swipe away, abstract runs with no concrete numbers, and endings that fail to loop back to the first line.
+
+### 2. Convenes an $N$-Subagent Test Jury (`reel_jury.py`) So Scores Are Never Random
+When a Reel draft is ready, your agent can optionally spawn **$N$ independent reviewer subagents in parallel** (`cold_scroller`, `retention_editor`, `niche_skeptic`, `icp_buyer`, `voice_humanizer`, `algorithm_packager`, `brand_guardian`, `conversion_strategist`).
+- **40% Deterministic Tool Floor:** Runs local calculators (`hookscore.py`, `beats.py`, `caption.py`, `detect.py`) first so 40% of the score is anchored to repeatable code.
+- **60% Blinded Persona Panel (0–5 BARS + Quote Verification):** Each subagent is blinded to other reviewers' scores, grades 5 criteria on a **0–5 Behaviorally Anchored Rating Scale**, and **must quote an exact substring** from your Reel packet for every score. Ungrounded scores are penalized automatically, disagreements are preserved, and the top 3 rewrites are surfaced before you record.
+
+### 3. Previews the 125-Character Feed Fold & Strips AI Slop
+Instagram hides everything past ~125 characters behind a tap. `caption.py` renders the exact feed preview box, checks keyword placement, enforces Instagram's **5-hashtag cap**, and verifies a single clear CTA. Then `humanize.py` + `detect.py` strip invisible zero-width watermarks, curly-quote/em-dash fingerprints, and 154 stock AI phrases (`slop.json`) while auditing sentence burstiness and concrete noun density.
+
+### 4. Runs Your Entire Account Workflow End-to-End
+- **Carousels & Stories:** 6–10 slide retention arcs (cover hook -> front-loaded value -> save/follow payoff) and daily Story sequences with DM keyword triggers.
+- **Profile 100-Point Audit:** Scores your profile against a 12-part rubric (`rubric.json`) and rewrites your searchable Name field, 150-char bio, highlights, and pinned posts in fix-first order.
+- **Weekly Content Planner & Repurposer:** Turns podcasts, YouTube scripts, newsletters, or LinkedIn posts into native Reels and carousels without cross-platform artifacts.
+- **Comments, Replies & DM Funnels:** Sorts comment threads by intent (keyword / lead / substance / question / support) and drafts non-pushy DM deliveries and collab pitches.
+- **Optional Publishing & Visuals:** Draft-first by default (nothing posts without your explicit OK), with optional adapters for **Publora** (draft -> S3 upload -> schedule), **Apify** (niche/profile reading), and **Pixfaro** (carousel slide illustration).
+
+### 5. Evaluates Post-Publish Insights & Trial Reels (`insights_lab.py`)
+Pre-publish text scores can catch bad hooks, but your retention graph decides winners. `insights_lab.py` reads your Instagram Insights CSV/TSV exports, computes your account's own median baselines (**Sends per 1k reach**, **Saves per 1k reach**, **Average Watch %**, **3s View Rate**), gives a clear **Trial Reel verdict** (`PROMOTE TO EVERYONE`, `RE-EDIT BODY`, or `KEEP AS TRIAL / ARCHIVE`), and generates your next **1-variable experiment**.
+
+---
+
+## How It Works
+
+1. **Ask naturally in any agent** (no vendor-specific slash commands required):
+   - *"Write a 25-second Reel about why freelance designers lose money on 'payment on approval' contracts, time the beats, and run a 5-subagent jury review."*
+   - *"Turn these notes into an 8-slide save-worthy carousel and lint the caption for the 125-char fold."*
+   - *"Score my Instagram bio and pinned posts against the 100-point rubric and rewrite what lost points."*
+   - *"Run `insights_lab.py` on my last 10 Reels CSV and tell me whether to promote my latest Trial Reel."*
+2. **Router loads only what is needed:** [`skills/instagram-content-studio/SKILL.md`](skills/instagram-content-studio/SKILL.md) routes your prompt to the matching specialist guide, rubric, or Python tool without bloating your context window.
+3. **Deterministic tools + optional subagent jury run locally:** Standard-library Python 3 scripts verify timing, truncation, slop density, and jury ballots on your machine.
+4. **You stay in control:** Every workflow finishes with a copy-ready draft (or waits for your explicit confirmation if you configured optional publishing).
+
+---
+
+## Install (Works in Any Agent)
+
+### Option 1: Skills CLI (Claude Code, Codex, Cursor, OpenCode, etc.)
 
 ```sh
 npx skills add Jeet1309/instagram-agent-skill
@@ -23,7 +56,7 @@ npx skills add Jeet1309/instagram-agent-skill
 
 Select `instagram-content-studio` when prompted.
 
-### 2. Git Clone into Any Agent's Skills Folder
+### Option 2: Git Clone into Your Agent's Skills Directory
 
 ```sh
 # Universal / OpenCode / Agent Skills standard
@@ -34,97 +67,69 @@ cp -r instagram-agent-skill/skills/instagram-content-studio ~/.agents/skills/
 cp -r instagram-agent-skill/skills/instagram-content-studio ~/.claude/skills/
 ```
 
-Other agents (Aider, Windsurf, custom LLM wrappers, or web chat) can load [`skills/instagram-content-studio/SKILL.md`](skills/instagram-content-studio/SKILL.md) as system/project instructions and read the adjacent `upstream/` and `scripts/` folders on demand.
+For chat-only or custom agents (Aider, Windsurf, custom LLM wrappers), load [`skills/instagram-content-studio/SKILL.md`](skills/instagram-content-studio/SKILL.md) as system/project instructions and keep the adjacent `scripts/`, `references/`, and `upstream/` folders accessible.
 
 ---
 
-## How This Differs from the Two Original Skills
+## Local CLI Tools Quickstart
+
+All 8 local analysis scripts run on **Python 3 standard library only** (no `pip install` or API key required):
+
+```sh
+cd skills/instagram-content-studio
+
+# 1. N-Subagent Reel Review Jury (40% deterministic + 60% blinded BARS persona panel)
+python scripts/reel_jury.py personas
+python scripts/reel_jury.py demo --n 5
+python scripts/reel_jury.py prepare --packet reel_packet.json --n 5 --out-dir jury_run
+python scripts/reel_jury.py aggregate --packet reel_packet.json --ballots jury_run/ballots.json
+
+# 2. Insights & Trial Reels Experiment Analyzer
+python scripts/insights_lab.py --demo
+python scripts/insights_lab.py my_posts.csv --topic "freelance pricing clauses"
+
+# 3. Reel Hook Scorer & Spoken Beat Sheet Timer
+python upstream/jakeschincariol/skills/ig-reel/hookscore.py --hook "I lost $18,000 because of one wrong word in my contract."
+python upstream/jakeschincariol/skills/ig-reel/beats.py script.txt --target 25
+
+# 4. Caption 125-Char Fold Linter & Hashtag Cap Checker
+python upstream/jakeschincariol/skills/ig-caption/caption.py caption.txt --keywords "freelance contract,design business"
+
+# 5. Humanizer & 5-Signal AI Tell Detector
+python upstream/jakeschincariol/skills/ig-human/humanize.py draft.txt --report
+python upstream/jakeschincariol/skills/ig-human/detect.py draft.txt
+
+# 6. Competitor Outlier Swipe File Ranker & Instagram URL Parser
+python upstream/jakeschincariol/skills/ig-viral/swipe.py captured.tsv
+python upstream/sergebulaev/lib/url_parser.py "https://www.instagram.com/reel/C9_aBcDeF/"
+```
+
+Optional external adapters (`Publora`, `Apify`, `Pixfaro`) in `skills/instagram-content-studio/upstream/sergebulaev/lib/` can be enabled by installing `skills/instagram-content-studio/upstream/sergebulaev/requirements.txt` and configuring `.env`.
+
+---
+
+## Comparison: How This Differs from the Two Original Skills
+
+This repository combines the full source trees of **[sergebulaev/instagram-skills](https://github.com/sergebulaev/instagram-skills)** and **[Jakeschincariol/instagram-agent-skill](https://github.com/Jakeschincariol/instagram-agent-skill)**, reconciles their overlapping rules, and adds `reel_jury.py` and `insights_lab.py`.
 
 | Capability / Design | `sergebulaev/instagram-skills` | `Jakeschincariol/instagram-agent-skill` | **This Combined Repo (`Jeet1309/instagram-agent-skill`)** |
 | --- | --- | --- | --- |
 | **Agent compatibility** | Built around Claude Code & Codex plugin manifests | Built around Claude Code `/ig-*` slash commands & `~/.claude/instagram/` paths | **Agent-neutral (`SKILL.md` standard)**: works via natural language in any agent without requiring slash commands or vendor-specific paths |
 | **Preserved original prompts & scripts** | 9 marketing skills + `lib/` (`publora_client.py`, `apify_client.py`, `pixfaro_client.py`, `url_parser.py`, `approval.py`) | 13 creator skills + 6 local scripts (`hookscore.py`, `beats.py`, `caption.py`, `humanize.py`, `detect.py`, `swipe.py`) | **Includes 100% of both upstream trees** under `skills/instagram-content-studio/upstream/` plus all data files, rubrics, and templates |
 | **Reels production & timing** | Hook extraction & 10 hook formulas, no spoken beat timer | 26 scored hook formulas + `hookscore.py` + `beats.py` spoken timing sheet | **Combines both** (36 total formula references + local hook scorer + spoken beat timer) |
+| **Multi-subagent pre-shoot Reel evaluation** | Single-agent draft review | Single-agent hook & beat scoring | **Adds `scripts/reel_jury.py` + `references/reel-jury-protocol.md`**: spawns $N$ orthogonal persona subagents in parallel and combines their quote-verified 0–5 BARS ballots (60%) with the deterministic local tool floor (40%) |
+| **Post-publish Insights & Trial Reels testing** | Descriptive audit prompts only | `ig-audit` prompt + `swipe.py` for competitor outlier ranking | **Adds `scripts/insights_lab.py`** to score your own post CSV/TSV exports on Sends/Reach, Saves/Reach, 3s View Rate, Watch %, and Trial Reels promote/archive decisions |
 | **Humanizer & AI-tell scrubbing** | Prompt-based 2026 density rules, em-dash cap (~1/100 words), pre-publish audit checklist | `humanize.py` + `detect.py` + `slop.json` (strips zero-width chars, normalizes typography, flags structural tells) | **Runs both**: local deterministic cleanup/scoring (`humanize.py` / `detect.py`) + nuanced editorial scrub and voice rules |
 | **Hashtag & policy accuracy** | Some files still reference the legacy 30-hashtag ceiling | Enforces the 5-hashtag cap in `caption.py` | **Reconciles conflicts** in the top-level router and prioritizes current official Instagram guidance (including April 2026 originality rules for carousels/photos) |
 | **Publishing & external tools** | Optional Publora auto-scheduling, Apify niche reading, Pixfaro image generation | Strictly copy-paste only; no API clients | **Draft-first by default, opt-in adapters preserved** when the user explicitly configures `.env` and approves publishing |
-| **Post-publish Insights & Trial Reels testing** | Descriptive audit prompts only | `ig-audit` prompt + `swipe.py` for competitor outlier ranking | **Adds `scripts/insights_lab.py`** to score your own post CSV/TSV exports on Sends/Reach, Saves/Reach, 3s View Rate, Watch %, and Trial Reels promote/archive decisions |
-| **Multi-subagent pre-shoot Reel evaluation** | Single-agent draft review | Single-agent hook & beat scoring | **Adds `scripts/reel_jury.py` + `references/reel-jury-protocol.md`**: spawns $N$ orthogonal persona subagents in parallel and combines their quote-verified 0–5 BARS ballots (60%) with the deterministic local tool floor (40%) |
 
 ---
 
-## Added Value from Research: `insights_lab.py` & Trial Reels Workflow
+## Original Sources, Attribution & License
 
-Both upstream repos focus heavily on pre-publish text heuristics. However, Jake's own benchmark on 74 short-form hooks found that static text scoring separates hits from misses at **AUC 0.56** (near coin-flip) once obviously bad hooks are removed, and Instagram's 2025-2026 creator guidance emphasizes **Watch Time**, **3-second View Rate**, **Sends per Reach** (especially for non-follower discovery), **Saves per Reach**, **Originality across photos/carousels/Reels**, and **Trial Reels** (24h-72h non-follower testing).
+This project is MIT Licensed ([`LICENSE`](LICENSE)) and builds directly upon:
 
-To turn those findings into an executable tool, this repo adds [`skills/instagram-content-studio/scripts/insights_lab.py`](skills/instagram-content-studio/scripts/insights_lab.py) (Python 3 stdlib, zero dependencies):
+1. **[sergebulaev/instagram-skills](https://github.com/sergebulaev/instagram-skills)** by Sergey Bulaev ([Creative Content Crafts](https://cccrafts.ai)) — MIT License preserved in [`licenses/sergebulaev-MIT.txt`](licenses/sergebulaev-MIT.txt).
+2. **[Jakeschincariol/instagram-agent-skill](https://github.com/Jakeschincariol/instagram-agent-skill)** by Jake Schincariol ([opusjake.ai](https://opusjake.ai)) — MIT License preserved in [`licenses/jakeschincariol-MIT.txt`](licenses/jakeschincariol-MIT.txt).
 
-```sh
-# Run the built-in demonstration
-python skills/instagram-content-studio/scripts/insights_lab.py --demo
-
-# Analyze your own Instagram Insights CSV or TSV export
-python skills/instagram-content-studio/scripts/insights_lab.py my_posts.csv --topic "freelance pricing clauses"
-```
-
-What `insights_lab.py` does:
-1. Calculates account-median baselines for **Reach**, **Sends per 1k reach**, **Saves per 1k reach**, **Average Watch %**, and **3-second View Rate**.
-2. Diagnoses whether a post underperformed in the **first 3 seconds** (hook issue) vs **mid-video retention** (pacing/beat issue) vs **shareability/save utility**.
-3. Gives a concrete **Trial Reel verdict** (`PROMOTE TO EVERYONE`, `RE-EDIT BODY`, or `KEEP AS TRIAL / ARCHIVE`).
-4. Prints a structured **1-variable next experiment** (holding topic/payoff constant while testing hook framing).
-
----
-
-## Added Value from Multi-Agent Evaluation Research: $N$-Subagent Reel Jury (`reel_jury.py`)
-
-When an agent finishes drafting a Reel, asking a single LLM *"rate my Reel 1-100"* produces sycophantic, drifting numbers. Based on multi-agent judge research (*ChatEval*, *MAJ-Eval* ACL 2026, *LLM-Rubric*, *0–5 Grading Scale Alignment* 2026, and *Anchoring Bias in LLM Judges* 2026), [`skills/instagram-content-studio/scripts/reel_jury.py`](skills/instagram-content-studio/scripts/reel_jury.py) and [`references/reel-jury-protocol.md`](skills/instagram-content-studio/references/reel-jury-protocol.md) implement a non-random **3-layer evaluation panel**:
-
-1. **40% Deterministic Tool Floor**: Runs `hookscore.py`, `beats.py`, `caption.py`, and `detect.py` directly on the Reel packet so 40% of the score is anchored to repeatable code.
-2. **60% Blinded $N$-Subagent Persona Jury ($N=3..8$)**: Generates self-contained prompts for $N$ orthogonal personas (`cold_scroller`, `retention_editor`, `niche_skeptic`, `icp_buyer`, `voice_humanizer`, `algorithm_packager`, `brand_guardian`, `conversion_strategist`). Each subagent runs in parallel, is blinded to other subagents' scores, grades 5 criteria on a **0–5 Behaviorally Anchored Rating Scale (BARS)**, and **must cite a verbatim quote** from the Reel packet for every score.
-3. **Calibrated Aggregation & Disagreement Preservation**: Verifies every quote against the Reel text (penalizing ungrounded claims), applies each persona's domain weight vector, computes the 95% confidence interval and inter-rater spread, preserves disagreements ($\ge 2.0$ spread), enforces binary dealbreaker caps, and outputs the top 3 rewrites before you shoot.
-
-```sh
-# List the 8 reviewer personas and their domain weights
-python skills/instagram-content-studio/scripts/reel_jury.py personas
-
-# Run a full 5-subagent demonstration
-python skills/instagram-content-studio/scripts/reel_jury.py demo --n 5
-
-# Prepare N blinded subagent prompts for your own Reel packet
-python skills/instagram-content-studio/scripts/reel_jury.py prepare --packet reel_packet.json --n 5 --out-dir jury_run
-
-# Aggregate the N subagent JSON ballots into a calibrated score & rewrite list
-python skills/instagram-content-studio/scripts/reel_jury.py aggregate --packet reel_packet.json --ballots jury_run/ballots.json
-```
-
----
-
-## Included Local CLI Tools
-
-All local scripts run with standard Python 3 (no `pip install` needed):
-
-```sh
-cd skills/instagram-content-studio
-
-# New: Insights & Trial Reels experiment analyzer
-python scripts/insights_lab.py --demo
-
-# From Jake Schincariol's toolkit:
-python upstream/jakeschincariol/skills/ig-reel/hookscore.py --help
-python upstream/jakeschincariol/skills/ig-reel/beats.py --help
-python upstream/jakeschincariol/skills/ig-caption/caption.py --help
-python upstream/jakeschincariol/skills/ig-human/humanize.py --help
-python upstream/jakeschincariol/skills/ig-human/detect.py --help
-python upstream/jakeschincariol/skills/ig-viral/swipe.py --help
-
-# From Sergey Bulaev's toolkit (stdlib URL parser + approval card):
-python upstream/sergebulaev/lib/url_parser.py "https://www.instagram.com/reel/C9_aBcDeF/"
-```
-
-Optional third-party integrations (`Publora`, `Apify`, `Pixfaro`) live in `skills/instagram-content-studio/upstream/sergebulaev/lib/` and require `pip install -r skills/instagram-content-studio/upstream/sergebulaev/requirements.txt` plus user-supplied keys in `.env`.
-
----
-
-## Attribution & License
-
-MIT Licensed ([`LICENSE`](LICENSE)). Full upstream MIT license notices and commit references are preserved in [`ATTRIBUTION.md`](ATTRIBUTION.md), [`licenses/sergebulaev-MIT.txt`](licenses/sergebulaev-MIT.txt), and [`licenses/jakeschincariol-MIT.txt`](licenses/jakeschincariol-MIT.txt).
+See [`ATTRIBUTION.md`](ATTRIBUTION.md) for the complete capability-to-source map, upstream commit snapshots, and official Instagram/Meta creator research references.
