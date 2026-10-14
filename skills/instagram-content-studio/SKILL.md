@@ -33,7 +33,8 @@ Slash names shown below are optional labels, not required syntax. Any agent can 
 
 | Intent | Specialist source to load |
 | --- | --- |
-| Reel idea, hook options, spoken script, on-screen text, beat sheet | `upstream/jakeschincariol/skills/ig-reel/SKILL.md`; use its `hooks.json`, `hookscore.py`, and `beats.py`. For hook analysis/template extraction, also load `upstream/sergebulaev/skills/ig-hook-extractor/SKILL.md`, `references/hook-formulas.md`, and its local references. |
+| Reel idea, hook options, spoken script, on-screen text, beat sheet | `upstream/jakeschincariol/skills/ig-reel/SKILL.md`; use its `hooks.json`, `hookscore.py`, and `beats.py`. For hook analysis/template extraction, also load `upstream/sergebulaev/skills/ig-hook-extractor/SKILL.md`, `references/hook-formulas.md`, and its local references. Optionally run the $N$-subagent Reel Review Jury (`references/reel-jury-protocol.md` + `scripts/reel_jury.py`). |
+| Spawn $N$ subagents to test/review/score a finished Reel | Load `references/reel-jury-protocol.md` and run `scripts/reel_jury.py prepare --packet <json> --n <N>`, spawn $N$ blinded persona subagents in parallel, then run `scripts/reel_jury.py aggregate` for the calibrated 0-100 score and top rewrites. |
 | Research successful posts or patterns in a niche | `upstream/jakeschincariol/skills/ig-viral/SKILL.md` and `swipe.py`. For account/profile or hashtag data with explicitly configured access, load `upstream/sergebulaev/skills/ig-audience-insights/SKILL.md` and inspect `lib/apify_client.py`. |
 | Caption, caption lint, or hashtag set | Load both `upstream/jakeschincariol/skills/ig-caption/SKILL.md` and `upstream/sergebulaev/skills/ig-caption-writer/SKILL.md`; use the caption script and relevant caption/voice references. For a dedicated hashtag plan, also load `upstream/sergebulaev/skills/ig-hashtag-strategist/SKILL.md` and its sourcing reference. |
 | Carousel | Load both carousel specialist prompts and their architecture references. Use the humanizer only after the user approves the core meaning/copy. Image generation is optional and must be reviewed before use. |
@@ -55,7 +56,11 @@ For multi-part requests, work in this order and skip irrelevant steps:
 2. Research only as needed. Prefer official platform sources for current rules and the user's own Insights for account strategy. Competitor/viral research must be manual or based on a user-provided/authorized source. Record source and date for claims that can change.
 3. Create the requested deliverable using the relevant specialist prompt. For Reels, provide multiple hook options, a spoken draft, on-screen text, visual/shot cues, approximate beat timing, and one clear CTA when appropriate. For carousels, make each slide work in sequence and specify the cover, slide copy, visual direction, and closing action. For captions, preview the opening and include one natural action. Do not force every format into the same template.
 4. Run applicable checks: clarity, voice, factual support, accessibility, policy risk, unnecessary repetition, and format-specific lint/timing. Scripts are optional helpers; the agent should still complete the task if they cannot run.
-5. Return the draft and concise rationale. Identify placeholders, assumptions, uncertain platform guidance, and any approval needed for an external action. Do not imply that checks guarantee reach or compliance.
+5. **Optional $N$-Subagent Reel Jury (when creating or reviewing a Reel):** If the user asks to test/score the Reel with subagents (or wants high-confidence pre-shoot validation) and the runtime supports subagents/tasks:
+   - Run `python scripts/reel_jury.py prepare --packet <reel_packet.json> --n <N> --out-dir <dir>` (`N` defaults to 5, configurable 3–8).
+   - Spawn $N$ independent subagents in parallel (one per persona: `cold_scroller`, `retention_editor`, `niche_skeptic`, `icp_buyer`, `voice_humanizer`, `algorithm_packager`, `brand_guardian`, `conversion_strategist`). Keep each subagent blinded to other subagents' scores and require a verbatim quote per 0–5 BARS criterion.
+   - Run `python scripts/reel_jury.py aggregate --packet <reel_packet.json> --ballots <ballots.json>` to combine the **40% deterministic tool floor** (`hookscore.py`, `beats.py`, `caption.py`, `detect.py`) with the **60% domain-weighted subagent panel**, preserve inter-agent disagreements, and apply the top priority rewrites before showing the final Reel.
+6. Return the draft and concise rationale. Identify placeholders, assumptions, uncertain platform guidance, and any approval needed for an external action. Do not imply that checks guarantee reach or compliance.
 
 ## Data-informed planning and research
 
@@ -70,6 +75,8 @@ For multi-part requests, work in this order and skip irrelevant steps:
 Jake's tools and the added Insights/Trial Reels lab are standard-library Python scripts and can be run from the installed skill directory, for example:
 
 ```sh
+python scripts/reel_jury.py demo --n 5
+python scripts/reel_jury.py personas
 python scripts/insights_lab.py --demo
 python upstream/jakeschincariol/skills/ig-reel/hookscore.py --help
 python upstream/jakeschincariol/skills/ig-reel/beats.py --help
