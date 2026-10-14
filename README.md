@@ -8,6 +8,66 @@ Works out of the box in **Claude Code, Codex, OpenCode, Cursor, Cline, Windsurf,
 
 ---
 
+## Install (Works in Any Agent)
+
+### Option 1: One-Line Skills CLI (Claude Code, Codex, Cursor, OpenCode, etc.)
+
+```sh
+npx skills add Jeet1309/instagram-agent-skill
+```
+
+Select `instagram-content-studio` when prompted.
+
+### Option 2: Git Clone into Your Agent's Skills Directory
+
+```sh
+# Universal / OpenCode / Agent Skills standard
+git clone https://github.com/Jeet1309/instagram-agent-skill.git
+cp -r instagram-agent-skill/skills/instagram-content-studio ~/.agents/skills/
+
+# Claude Code
+cp -r instagram-agent-skill/skills/instagram-content-studio ~/.claude/skills/
+```
+
+For chat-only or custom agents (Aider, Windsurf, custom LLM wrappers), load [`skills/instagram-content-studio/SKILL.md`](skills/instagram-content-studio/SKILL.md) as system/project instructions and keep the adjacent `scripts/`, `references/`, and `upstream/` folders accessible.
+
+### Local CLI Tools Quickstart
+
+All 8 local analysis scripts run on **Python 3 standard library only** (no `pip install` or API key required):
+
+```sh
+cd skills/instagram-content-studio
+
+# 1. N-Subagent Reel Review Jury (40% deterministic + 60% blinded BARS persona panel)
+python scripts/reel_jury.py personas
+python scripts/reel_jury.py demo --n 5
+python scripts/reel_jury.py prepare --packet reel_packet.json --n 5 --out-dir jury_run
+python scripts/reel_jury.py aggregate --packet reel_packet.json --ballots jury_run/ballots.json
+
+# 2. Insights & Trial Reels Experiment Analyzer
+python scripts/insights_lab.py --demo
+python scripts/insights_lab.py my_posts.csv --topic "freelance pricing clauses"
+
+# 3. Reel Hook Scorer & Spoken Beat Sheet Timer
+python upstream/jakeschincariol/skills/ig-reel/hookscore.py --hook "I lost $18,000 because of one wrong word in my contract."
+python upstream/jakeschincariol/skills/ig-reel/beats.py script.txt --target 25
+
+# 4. Caption 125-Char Fold Linter & Hashtag Cap Checker
+python upstream/jakeschincariol/skills/ig-caption/caption.py caption.txt --keywords "freelance contract,design business"
+
+# 5. Humanizer & 5-Signal AI Tell Detector
+python upstream/jakeschincariol/skills/ig-human/humanize.py draft.txt --report
+python upstream/jakeschincariol/skills/ig-human/detect.py draft.txt
+
+# 6. Competitor Outlier Swipe File Ranker & Instagram URL Parser
+python upstream/jakeschincariol/skills/ig-viral/swipe.py captured.tsv
+python upstream/sergebulaev/lib/url_parser.py "https://www.instagram.com/reel/C9_aBcDeF/"
+```
+
+Optional external adapters (`Publora`, `Apify`, `Pixfaro`) in `skills/instagram-content-studio/upstream/sergebulaev/lib/` can be enabled by installing `skills/instagram-content-studio/upstream/sergebulaev/requirements.txt` and configuring `.env`.
+
+---
+
 ## What This Skill Does (And Why Use It)
 
 ### 1. Writes Reels You Can Actually Say Out Loud (Before You Waste a Take)
@@ -43,68 +103,6 @@ Pre-publish text scores can catch bad hooks, but your retention graph decides wi
 2. **Router loads only what is needed:** [`skills/instagram-content-studio/SKILL.md`](skills/instagram-content-studio/SKILL.md) routes your prompt to the matching specialist guide, rubric, or Python tool without bloating your context window.
 3. **Deterministic tools + optional subagent jury run locally:** Standard-library Python 3 scripts verify timing, truncation, slop density, and jury ballots on your machine.
 4. **You stay in control:** Every workflow finishes with a copy-ready draft (or waits for your explicit confirmation if you configured optional publishing).
-
----
-
-## Install (Works in Any Agent)
-
-### Option 1: Skills CLI (Claude Code, Codex, Cursor, OpenCode, etc.)
-
-```sh
-npx skills add Jeet1309/instagram-agent-skill
-```
-
-Select `instagram-content-studio` when prompted.
-
-### Option 2: Git Clone into Your Agent's Skills Directory
-
-```sh
-# Universal / OpenCode / Agent Skills standard
-git clone https://github.com/Jeet1309/instagram-agent-skill.git
-cp -r instagram-agent-skill/skills/instagram-content-studio ~/.agents/skills/
-
-# Claude Code
-cp -r instagram-agent-skill/skills/instagram-content-studio ~/.claude/skills/
-```
-
-For chat-only or custom agents (Aider, Windsurf, custom LLM wrappers), load [`skills/instagram-content-studio/SKILL.md`](skills/instagram-content-studio/SKILL.md) as system/project instructions and keep the adjacent `scripts/`, `references/`, and `upstream/` folders accessible.
-
----
-
-## Local CLI Tools Quickstart
-
-All 8 local analysis scripts run on **Python 3 standard library only** (no `pip install` or API key required):
-
-```sh
-cd skills/instagram-content-studio
-
-# 1. N-Subagent Reel Review Jury (40% deterministic + 60% blinded BARS persona panel)
-python scripts/reel_jury.py personas
-python scripts/reel_jury.py demo --n 5
-python scripts/reel_jury.py prepare --packet reel_packet.json --n 5 --out-dir jury_run
-python scripts/reel_jury.py aggregate --packet reel_packet.json --ballots jury_run/ballots.json
-
-# 2. Insights & Trial Reels Experiment Analyzer
-python scripts/insights_lab.py --demo
-python scripts/insights_lab.py my_posts.csv --topic "freelance pricing clauses"
-
-# 3. Reel Hook Scorer & Spoken Beat Sheet Timer
-python upstream/jakeschincariol/skills/ig-reel/hookscore.py --hook "I lost $18,000 because of one wrong word in my contract."
-python upstream/jakeschincariol/skills/ig-reel/beats.py script.txt --target 25
-
-# 4. Caption 125-Char Fold Linter & Hashtag Cap Checker
-python upstream/jakeschincariol/skills/ig-caption/caption.py caption.txt --keywords "freelance contract,design business"
-
-# 5. Humanizer & 5-Signal AI Tell Detector
-python upstream/jakeschincariol/skills/ig-human/humanize.py draft.txt --report
-python upstream/jakeschincariol/skills/ig-human/detect.py draft.txt
-
-# 6. Competitor Outlier Swipe File Ranker & Instagram URL Parser
-python upstream/jakeschincariol/skills/ig-viral/swipe.py captured.tsv
-python upstream/sergebulaev/lib/url_parser.py "https://www.instagram.com/reel/C9_aBcDeF/"
-```
-
-Optional external adapters (`Publora`, `Apify`, `Pixfaro`) in `skills/instagram-content-studio/upstream/sergebulaev/lib/` can be enabled by installing `skills/instagram-content-studio/upstream/sergebulaev/requirements.txt` and configuring `.env`.
 
 ---
 
